@@ -30,20 +30,29 @@ export default function App() {
         source={require("../assets/images/img.png")}
         className="w-45 h-45 mb-12"
       />
-      <Text className="text-3xl font-bold text-white mb-4">
-        Discover Endless Possibilities with Aora
+      <Text className="text-3xl font-bold text-white mb-4 text-center">
+        Discover Endless Possibilities with{" "}
+        <Text className="text-orange-500">Aora</Text>
       </Text>
-      <Text className="text-3xl font-bold text-white mb-4">Aora!!</Text>
-      <Link href="/profile" asChild>
+
+      <Text className="text-base text-white mb-4 text-center">
+        Where Creativity Meets Innovation: Embark on a Journey of Limitless
+        Exploration with Aora
+      </Text>
+      <Link
+        href="/profile"
+        asChild
+        className="hover:bg-white transition-colors"
+      >
         <TouchableOpacity
           className={`${
-            isPressed ? "bg-gray-200" : "bg-white"
-          } px-6 py-3 rounded-full`}
+            isPressed ? "bg-white" : "bg-orange-500"
+          } px-12 py-3 rounded-full w-80`}
           onPressIn={() => setIsPressed(true)}
           onPressOut={() => setIsPressed(false)}
         >
-          <Text className="text-red-500 text-lg font-semibold">
-            Profile Git
+          <Text className="text-black text-lg font-semibold text-center">
+            Continue with Email
           </Text>
         </TouchableOpacity>
       </Link>
