@@ -21,7 +21,7 @@ export default function App() {
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-red-500 p-4">
+    <View className="flex-1 items-center justify-center bg-black p-4">
       <Image
         source={require("../assets/images/logo.png")}
         className="w-80 h-24 mt-5 mb-4"
@@ -39,17 +39,14 @@ export default function App() {
         Where Creativity Meets Innovation: Embark on a Journey of Limitless
         Exploration with Aora
       </Text>
-      <Link
-        href="/profile"
-        asChild
-        className="hover:bg-white transition-colors"
-      >
+      <Link href="/signup" asChild>
         <TouchableOpacity
           className={`${
             isPressed ? "bg-white" : "bg-orange-500"
           } px-12 py-3 rounded-full w-80`}
           onPressIn={() => setIsPressed(true)}
           onPressOut={() => setIsPressed(false)}
+          onPress={() => {}}
         >
           <Text className="text-black text-lg font-semibold text-center">
             Continue with Email
