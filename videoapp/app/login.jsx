@@ -56,7 +56,12 @@ export default function Login() {
 
         <TouchableOpacity
           className="w-full bg-orange-500 p-4 rounded-lg"
-          onPress={() => router.push("/home")}
+          onPress={() =>
+            router.replace({
+              pathname: "/home",
+              params: { username: username },
+            })
+          }
         >
           <Text className="text-black text-center font-bold">Sign Up</Text>
         </TouchableOpacity>

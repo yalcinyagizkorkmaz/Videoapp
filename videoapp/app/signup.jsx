@@ -28,8 +28,10 @@ export default function Signup() {
   };
 
   const handleSignup = () => {
-    // Burada kayıt işlemleri yapılacak
-    router.push("/home");
+    router.push({
+      pathname: "/home",
+      params: { username: username },
+    });
   };
 
   return (
