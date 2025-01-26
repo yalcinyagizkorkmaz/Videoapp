@@ -2,7 +2,6 @@ import { Text, View, Image, TextInput } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useRoute } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import { SearchBar } from "react-native-screens";
 
 export default function Home() {
   const { username } = useLocalSearchParams();
@@ -33,8 +32,20 @@ export default function Home() {
           />
         </View>
       </View>
+
+      <View className="relative w-full mb-4">
+        <TextInput
+          placeholder="Search for a video topic"
+          className="w-full bg-[#202029] text-white p-4 pr-12 rounded-lg border border-[#9295aa]"
+          placeholderTextColor="#666"
+        />
+        <Image
+          source={require("../assets/images/Vector.png")}
+          className="w-6 h-6 absolute right-3 top-4"
+        />
+      </View>
+      <Text className="text-white mt-2">Trend Videos</Text>
       <View className="flex-1 items-center justify-center"></View>
-      <SearchBar placeholder="Search for a video topic">SAA</SearchBar>
     </View>
   );
 }
