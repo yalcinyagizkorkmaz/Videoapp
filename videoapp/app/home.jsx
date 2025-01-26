@@ -9,6 +9,7 @@ import {
 import React, { useState, useEffect } from "react";
 import { useRoute } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Home() {
   const { username } = useLocalSearchParams();
@@ -184,19 +185,23 @@ export default function Home() {
       {/* Sabit Alt Navbar */}
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
         <TouchableOpacity className="items-center">
-          <Text className="text-white text-xs mt-1">Ana Sayfa</Text>
+          <Ionicons name="home" size={24} color="white" />
+          <Text className="text-white text-xs mt-1">Home</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="items-center">
-          <Text className="text-white text-xs mt-1">Keşfet</Text>
+          <Ionicons name="save" size={24} color="white" />
+          <Text className="text-white text-xs mt-1">Saved</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="items-center">
-          <Text className="text-white text-xs mt-1">Yükle</Text>
+          <Ionicons name="add-circle" size={24} color="white" />
+          <Text className="text-white text-xs mt-1">Create</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="items-center">
-          <Text className="text-white text-xs mt-1">Profil</Text>
+          <Ionicons name="person" size={24} color="white" />
+          <Text className="text-white text-xs mt-1">Profile</Text>
         </TouchableOpacity>
       </View>
     </View>
