@@ -9,11 +9,9 @@ import {
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function Signup() {
+export default function Login() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
 
   const validateEmail = (text) => {
@@ -25,11 +23,6 @@ export default function Signup() {
     } else {
       setEmailError("");
     }
-  };
-
-  const handleSignup = () => {
-    // Burada kayıt işlemleri yapılacak
-    router.push("/home");
   };
 
   return (
@@ -51,7 +44,7 @@ export default function Signup() {
         <Text className="text-white">Email</Text>
         <TextInput
           className="w-full bg-white p-4 rounded-lg"
-          placeholder="Email adresiniz"
+          placeholder="Your  email"
           value={email}
           onChangeText={validateEmail}
           keyboardType="email-address"
@@ -59,30 +52,11 @@ export default function Signup() {
         {emailError ? (
           <Text className="text-red-500 text-sm">{emailError}</Text>
         ) : null}
-        <Text className="text-white">Password</Text>
-        <View className="relative w-full">
-          <TextInput
-            className="w-full bg-white p-4 rounded-lg pr-12"
-            placeholder="Your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            className="absolute right-4 top-[25%] -translate-y-1/2"
-            onPress={() => setShowPassword(!showPassword)}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off" : "eye"}
-              size={24}
-              color="gray"
-            />
-          </TouchableOpacity>
-        </View>
+        <Text className="text-white text-right">Forgot password</Text>
 
         <TouchableOpacity
           className="w-full bg-orange-500 p-4 rounded-lg"
-          onPress={handleSignup}
+          onPress={() => router.push("/home")}
         >
           <Text className="text-black text-center font-bold">Sign Up</Text>
         </TouchableOpacity>
