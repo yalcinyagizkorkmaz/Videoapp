@@ -6,30 +6,24 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
-import { useRoute } from "@react-navigation/native";
+import React, { useState } from "react";
+import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function Home() {
   const { username } = useLocalSearchParams();
-  const route = useRoute();
+  const router = useRouter();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [searchName, setSearchName] = useState("");
 
   const cards = [
     { id: 1, image: require("../assets/images/card-1.png") },
     { id: 2, image: require("../assets/images/card-2.png") },
     { id: 3, image: require("../assets/images/card-3.jpeg") },
   ];
-
-  useEffect(() => {
-    console.log("Route params:", route.params);
-    if (route.params?.username) {
-      console.log("Username set to:", route.params.username);
-    }
-  }, [route.params?.username]);
 
   return (
     <View className="flex-1 bg-black">
@@ -61,6 +55,17 @@ export default function Home() {
               placeholder="Search for a video topic"
               className="w-full bg-[#202029] text-white p-4 pr-12 rounded-lg border border-[#9295aa]"
               placeholderTextColor="#666"
+              value={searchName}
+              onChangeText={setSearchName}
+              onSubmitEditing={() => {
+                if (searchName.trim()) {
+                  router.push({
+                    pathname: "/search",
+                    params: { query: searchName },
+                  });
+                }
+              }}
+              returnKeyType="search"
             />
             <Image
               source={require("../assets/images/Vector.png")}
