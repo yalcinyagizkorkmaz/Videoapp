@@ -5,13 +5,13 @@ import { StyleSheet } from "react-native";
 
 export default function RootLayout() {
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-black">
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#fff",
+            backgroundColor: "#000",
           },
-          headerTintColor: "#000",
+          headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
           },

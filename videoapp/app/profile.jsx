@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,44 +8,104 @@ export default function Profile() {
   const { username } = useLocalSearchParams();
 
   const handleLogout = () => {
-    router.push("/"); // veya router.push("/home")
+    router.push("/");
   };
 
   return (
-    <View className="flex-1  bg-neutral-900">
-      <TouchableOpacity onPress={handleLogout} className="self-end p-4">
+    <View className="flex-1 bg-black p-4">
+      <TouchableOpacity
+        onPress={handleLogout}
+        className="absolute right-4 top-4 z-10"
+      >
         <Image
           source={require("../assets/images/tabler_logout.png")}
-          className="w-8 h-8"
+          className="w-6 h-6"
         />
       </TouchableOpacity>
 
-      {/* Kullanıcı Profil Kartı */}
-      <View className="mx-3 mt-1 bg-[#202029] rounded-2xl p-4 h-100 w-4/5">
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center">
-            <Image
-              source={require("../assets/images/Rectangle-7.png")}
-              className="w-20 h-20 rounded-full"
-            />
-            <View className="ml-4">
-              <Text className="text-white text-xl font-bold">
-                {username || "Misafir"}
-              </Text>
-            </View>
-          </View>
-          <View className="flex-row space-x-4">
-            <View>
-              <Text className="text-white text-lg font-semibold">42</Text>
-              <Text className="text-gray-400 text-sm">Posts</Text>
-            </View>
-            <View>
-              <Text className="text-white text-lg font-semibold">1.5K</Text>
-              <Text className="text-gray-400 text-sm">Views</Text>
+      <ScrollView className="mb-20">
+        <View className="flex-row mt-0  bg-[#202029] p-4 rounded-lg w-5/6">
+          <Image
+            source={require("../assets/images/Rectangle-7.png")}
+            className="w-24 h-24 rounded-full"
+          />
+          <View className="ml-4 flex-1">
+            <Text className="text-white text-2xl font-bold mb-2">
+              {username || "Misafir"}
+            </Text>
+            <View className="flex-row justify-between">
+              <View className="flex-row">
+                <View className="items-center mr-6">
+                  <Text className="text-white text-xl font-bold">128</Text>
+                  <Text className="text-gray-400 text-sm">Post</Text>
+                </View>
+                <View className="items-center">
+                  <Text className="text-white text-xl font-bold">1.2M</Text>
+                  <Text className="text-gray-400 text-sm">Görüntülenme</Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
-      </View>
+        <View className="flex-row justify-center mt-4">
+          <View className="bg-[#202029] p-4 rounded-lg w-full">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <Image
+                  source={require("../assets/images/avatar.png")}
+                  className="w-16 h-16 rounded-full"
+                />
+                <View className="ml-4 flex-1">
+                  <Text className="text-white">
+                    Woman walks down a Tokyo...
+                  </Text>
+                  <Text className="text-gray-400 mt-1">Brandon Etter</Text>
+                </View>
+              </View>
+              <TouchableOpacity>
+                <Image
+                  source={require("../assets/images/more.png")}
+                  className="w-6 h-6"
+                />
+              </TouchableOpacity>
+            </View>
+            <Image
+              source={require("../assets/images/video.png")}
+              className="w-full h-48 mt-4 rounded-lg"
+              resizeMode="cover"
+            />
+          </View>
+        </View>
+        <View className="flex-row justify-center mt-4">
+          <View className="bg-[#202029] p-4 rounded-lg w-full">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <Image
+                  source={require("../assets/images/avatar.png")}
+                  className="w-16 h-16 rounded-full"
+                />
+                <View className="ml-4 flex-1">
+                  <Text className="text-white">
+                    Woman walks down a Tokyo...
+                  </Text>
+                  <Text className="text-gray-400 mt-1">Brandon Etter</Text>
+                </View>
+              </View>
+              <TouchableOpacity>
+                <Image
+                  source={require("../assets/images/more.png")}
+                  className="w-6 h-6"
+                />
+              </TouchableOpacity>
+            </View>
+            <Image
+              source={require("../assets/images/video.png")}
+              className="w-full h-48 mt-4 rounded-lg"
+              resizeMode="cover"
+            />
+          </View>
+        </View>
+      </ScrollView>
 
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
         <TouchableOpacity
@@ -74,7 +134,7 @@ export default function Profile() {
           onPress={() =>
             router.push({
               pathname: "/profile",
-              params: { username: "KullanıcıAdı" },
+              params: { username: storedUsername },
             })
           }
         >
