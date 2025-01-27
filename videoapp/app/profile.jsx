@@ -12,7 +12,7 @@ export default function Profile() {
   };
 
   return (
-    <View className="flex-1 bg-neutral-900">
+    <View className="flex-1  bg-neutral-900">
       <TouchableOpacity onPress={handleLogout} className="self-end p-4">
         <Image
           source={require("../assets/images/tabler_logout.png")}
@@ -21,23 +21,27 @@ export default function Profile() {
       </TouchableOpacity>
 
       {/* Kullanıcı Profil Kartı */}
-      <View className="mx-4 mt-4 bg-[#202029] rounded-2xl p-6">
-        <View className="flex-row items-center">
-          <Image
-            source={require("../assets/images/Rectangle-7.png")}
-            className="w-20 h-20 rounded-full"
-          />
-          <View className="ml-4">
-            <Text className="text-white text-xl font-bold">{username}</Text>
-            <View className="flex-row mt-2 space-x-4">
-              <View>
-                <Text className="text-white text-lg font-semibold">42</Text>
-                <Text className="text-gray-400 text-sm">Gönderi</Text>
-              </View>
-              <View>
-                <Text className="text-white text-lg font-semibold">1.5K</Text>
-                <Text className="text-gray-400 text-sm">Görüntülenme</Text>
-              </View>
+      <View className="mx-3 mt-1 bg-[#202029] rounded-2xl p-4 h-100 w-4/5">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <Image
+              source={require("../assets/images/Rectangle-7.png")}
+              className="w-20 h-20 rounded-full"
+            />
+            <View className="ml-4">
+              <Text className="text-white text-xl font-bold">
+                {username || "Misafir"}
+              </Text>
+            </View>
+          </View>
+          <View className="flex-row space-x-4">
+            <View>
+              <Text className="text-white text-lg font-semibold">42</Text>
+              <Text className="text-gray-400 text-sm">Posts</Text>
+            </View>
+            <View>
+              <Text className="text-white text-lg font-semibold">1.5K</Text>
+              <Text className="text-gray-400 text-sm">Views</Text>
             </View>
           </View>
         </View>
@@ -67,7 +71,12 @@ export default function Profile() {
 
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/profile")}
+          onPress={() =>
+            router.push({
+              pathname: "/profile",
+              params: { username: "KullanıcıAdı" },
+            })
+          }
         >
           <Ionicons name="person" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Profile</Text>

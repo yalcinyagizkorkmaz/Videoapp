@@ -17,6 +17,7 @@ export default function Search() {
   const { query } = useLocalSearchParams();
   const navigation = useNavigation();
   const router = useRouter();
+  const [storedUsername, setStoredUsername] = useState("Misafir");
 
   return (
     <View className="flex-1 bg-neutral-900">
@@ -121,7 +122,12 @@ export default function Search() {
 
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/profile")}
+          onPress={() =>
+            router.push({
+              pathname: "/profile",
+              params: { username: storedUsername },
+            })
+          }
         >
           <Ionicons name="person" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Profile</Text>

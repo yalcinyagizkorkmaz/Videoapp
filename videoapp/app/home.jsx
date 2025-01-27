@@ -18,6 +18,7 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [searchName, setSearchName] = useState("");
+  const [storedUsername, setStoredUsername] = useState(username || "Misafir");
 
   const cards = [
     { id: 1, image: require("../assets/images/card-1.png") },
@@ -36,7 +37,9 @@ export default function Home() {
           <View className="flex-row items-center justify-between mb-4">
             <View>
               <Text className="text-white">Welcome Back</Text>
-              <Text className="text-white text-3xl font-bold">{username}</Text>
+              <Text className="text-white text-3xl font-bold">
+                {storedUsername}
+              </Text>
             </View>
             <View className="flex-row">
               <Image
@@ -212,7 +215,12 @@ export default function Home() {
 
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/profile")}
+          onPress={() =>
+            router.push({
+              pathname: "/profile",
+              params: { username: storedUsername },
+            })
+          }
         >
           <Ionicons name="person" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Profile</Text>
