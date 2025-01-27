@@ -189,7 +189,10 @@ export default function Home() {
 
       {/* Sabit Alt Navbar */}
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/home")}
+        >
           <Ionicons name="home" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Home</Text>
         </TouchableOpacity>
@@ -199,12 +202,18 @@ export default function Home() {
           <Text className="text-white text-xs mt-1">Saved</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/create")}
+        >
           <Ionicons name="add-circle" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Create</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/profile")}
+        >
           <Ionicons name="person" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Profile</Text>
         </TouchableOpacity>

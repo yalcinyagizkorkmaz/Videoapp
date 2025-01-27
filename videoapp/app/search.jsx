@@ -10,9 +10,14 @@ import {
 import React, { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 export default function Search() {
   const { query } = useLocalSearchParams();
+  const navigation = useNavigation();
+  const router = useRouter();
+
   return (
     <View className="flex-1 bg-neutral-900">
       <ScrollView className="flex-1 p-4 pb-20">
@@ -93,7 +98,10 @@ export default function Search() {
       </ScrollView>
 
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/home")}
+        >
           <Ionicons name="home" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Home</Text>
         </TouchableOpacity>
@@ -103,12 +111,18 @@ export default function Search() {
           <Text className="text-white text-xs mt-1">Saved</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/create")}
+        >
           <Ionicons name="add-circle" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Create</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/profile")}
+        >
           <Ionicons name="person" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Profile</Text>
         </TouchableOpacity>
