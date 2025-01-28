@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Alert, Linking } from "react-native";
+import * as FileSystem from "expo-file-system";
 
 export default function Create() {
   const router = useRouter();
@@ -84,6 +85,66 @@ export default function Create() {
     }
   };
 
+  const handleSubmit = async () => {
+    if (!videoUri) {
+      alert("Lütfen bir video seçin!");
+      return;
+    }
+    if (!title.trim()) {
+      alert("Lütfen bir başlık girin!");
+      return;
+    }
+    if (!thumbnailUri) {
+      alert("Lütfen bir thumbnail seçin!");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Video boyutunu kontrol et
+      const videoInfo = await FileSystem.getInfoAsync(videoUri);
+      const videoSize = videoInfo.size;
+      const maxSize = 100 * 1024 * 1024; // 100MB limit
+
+      if (videoSize > maxSize) {
+        alert("Video boyutu 100MB'dan küçük olmalıdır!");
+        return;
+      }
+
+      // Burada gerçek API çağrısı yapılacak
+      const formData = new FormData();
+      formData.append("video", {
+        uri: videoUri,
+        type: "video/mp4",
+        name: "video.mp4",
+      });
+      formData.append("thumbnail", {
+        uri: thumbnailUri,
+        type: "image/jpeg",
+        name: "thumbnail.jpg",
+      });
+      formData.append("title", title);
+      formData.append("aiPrompt", aiPrompt);
+
+      // API çağrısı örneği
+      // const response = await fetch('YOUR_API_ENDPOINT', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+
+      // Simülasyon için:
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      alert("Video başarıyla yüklendi!");
+      router.push("/home");
+    } catch (error) {
+      console.error("Video yüklenirken hata:", error);
+      alert("Video yüklenirken bir hata oluştu: " + error.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-black p-4">
       <Text className="text-white text-3xl font-bold">Upload Video</Text>
@@ -130,34 +191,7 @@ export default function Create() {
 
         <TouchableOpacity
           className="bg-orange-500 w-full h-15 p-4 rounded-lg items-center mt-4"
-          onPress={async () => {
-            console.log("Mevcut video URI:", videoUri);
-
-            if (!videoUri) {
-              alert("Lütfen bir video seçin!");
-              return;
-            }
-            if (!title.trim()) {
-              alert("Lütfen bir başlık girin!");
-              return;
-            }
-
-            setIsUploading(true);
-            try {
-              // Burada video yükleme işlemini gerçekleştirin
-              // Örnek olarak bir gecikme ekleyelim
-              await new Promise((resolve) => setTimeout(resolve, 2000));
-
-              // Başarılı yükleme sonrası
-              alert("Video başarıyla yüklendi!");
-              router.push("/home");
-            } catch (error) {
-              console.error("Video yüklenirken hata:", error);
-              alert("Video yüklenirken bir hata oluştu.");
-            } finally {
-              setIsUploading(false);
-            }
-          }}
+          onPress={handleSubmit}
           disabled={isUploading}
         >
           <Text className="text-black font-bold">
@@ -175,7 +209,10 @@ export default function Create() {
           <Text className="text-white text-xs mt-1">Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/saved")}
+        >
           <Ionicons name="save" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Saved</Text>
         </TouchableOpacity>

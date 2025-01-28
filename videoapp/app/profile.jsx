@@ -1,11 +1,13 @@
 import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Profile() {
   const router = useRouter();
   const { username } = useLocalSearchParams();
+  const [storedUsername, setStoredUsername] = useState(username || "Misafir");
 
   const handleLogout = () => {
     router.push("/");
@@ -116,7 +118,10 @@ export default function Profile() {
           <Text className="text-white text-xs mt-1">Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/saved")}
+        >
           <Ionicons name="save" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Saved</Text>
         </TouchableOpacity>

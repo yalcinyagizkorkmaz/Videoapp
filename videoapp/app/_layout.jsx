@@ -23,6 +23,7 @@ export default function RootLayout() {
         <Stack.Screen name="profile" options={{ headerShown: true }} />
         <Stack.Screen name="home" options={{ headerShown: true }} />
         <Stack.Screen name="create" options={{ headerShown: true }} />
+        <Stack.Screen name="saved" options={{ headerShown: true }} />
       </Stack>
     </View>
   );

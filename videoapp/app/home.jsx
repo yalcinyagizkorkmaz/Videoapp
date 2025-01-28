@@ -200,7 +200,10 @@ export default function Home() {
           <Text className="text-white text-xs mt-1">Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => router.push("/saved")}
+        >
           <Ionicons name="save" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Saved</Text>
         </TouchableOpacity>
