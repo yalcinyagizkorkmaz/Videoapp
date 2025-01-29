@@ -15,6 +15,8 @@ export default function Signup() {
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const validateEmail = (text) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,10 +30,33 @@ export default function Signup() {
   };
 
   const handleSignup = () => {
-    router.push({
-      pathname: "/home",
-      params: { username: username },
-    });
+    let hasError = false;
+
+    if (!username.trim()) {
+      setUsernameError("Username is required!");
+      hasError = true;
+    } else {
+      setUsernameError("");
+    }
+
+    if (!email.trim()) {
+      setEmailError("Email address is required!");
+      hasError = true;
+    }
+
+    if (!password.trim()) {
+      setPasswordError("Password is required!");
+      hasError = true;
+    } else {
+      setPasswordError("");
+    }
+
+    if (!hasError) {
+      router.push({
+        pathname: "/home",
+        params: { username: username },
+      });
+    }
   };
 
   return (
@@ -50,6 +75,9 @@ export default function Signup() {
           value={username}
           onChangeText={setUsername}
         />
+        {usernameError ? (
+          <Text className="text-red-500 text-sm">{usernameError}</Text>
+        ) : null}
         <Text className="text-white">Email</Text>
         <TextInput
           className="w-full bg-white p-4 rounded-lg"
@@ -81,6 +109,9 @@ export default function Signup() {
             />
           </TouchableOpacity>
         </View>
+        {passwordError ? (
+          <Text className="text-red-500 text-sm">{passwordError}</Text>
+        ) : null}
 
         <TouchableOpacity
           className="w-full bg-orange-500 p-4 rounded-lg"

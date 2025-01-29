@@ -13,15 +13,39 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
 
   const validateEmail = (text) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     setEmail(text);
 
-    if (text.length > 0 && !emailRegex.test(text)) {
-      setEmailError("Please enter a valid email address!");
+    if (text.length === 0) {
+      setEmailError("Email alanı zorunludur!");
+    } else if (!emailRegex.test(text)) {
+      setEmailError("Geçerli bir email adresi giriniz!");
     } else {
       setEmailError("");
+    }
+  };
+
+  const validateUsername = (text) => {
+    setUsername(text);
+    if (text.length === 0) {
+      setUsernameError("Username is required!");
+    } else {
+      setUsernameError("");
+    }
+  };
+
+  const handleSignUp = () => {
+    validateEmail(email);
+    validateUsername(username);
+
+    if (!emailError && !usernameError && email && username) {
+      router.replace({
+        pathname: "/home",
+        params: { username: username },
+      });
     }
   };
 
@@ -39,8 +63,11 @@ export default function Login() {
           className="w-full bg-white p-4 rounded-lg"
           placeholder="Your unique username"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={validateUsername}
         />
+        {usernameError ? (
+          <Text className="text-red-500 text-sm">{usernameError}</Text>
+        ) : null}
         <Text className="text-white">Email</Text>
         <TextInput
           className="w-full bg-white p-4 rounded-lg"
@@ -56,12 +83,7 @@ export default function Login() {
 
         <TouchableOpacity
           className="w-full bg-orange-500 p-4 rounded-lg"
-          onPress={() =>
-            router.replace({
-              pathname: "/home",
-              params: { username: username },
-            })
-          }
+          onPress={handleSignUp}
         >
           <Text className="text-black text-center font-bold">Sign Up</Text>
         </TouchableOpacity>

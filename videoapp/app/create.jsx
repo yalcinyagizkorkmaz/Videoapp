@@ -15,50 +15,6 @@ export default function Create() {
   const [thumbnailUri, setThumbnailUri] = useState(null);
   const [aiPrompt, setAiPrompt] = useState("");
 
-  const pickVideo = async () => {
-    try {
-      // Önce kamera roll izinlerini kontrol edelim
-      const { status: existingStatus } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      // İzin reddedildiyse
-      if (existingStatus !== "granted") {
-        Alert.alert(
-          "Galeri İzni Gerekli",
-          "Uygulamanın galeriye erişmesi için izin vermeniz gerekmektedir. Ayarlardan izni etkinleştirmek ister misiniz?",
-          [
-            {
-              text: "Daha Sonra",
-              style: "cancel",
-            },
-            {
-              text: "Ayarlara Git",
-              onPress: () => Linking.openSettings(),
-            },
-          ]
-        );
-        return;
-      }
-
-      // İzin verildiyse, video seçiciyi aç
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-        allowsEditing: true,
-        aspect: [16, 9],
-        quality: 1,
-        videoMaxDuration: 60,
-      });
-
-      if (!result.canceled) {
-        const videoAsset = result.assets[0];
-        setVideoUri(videoAsset.uri);
-      }
-    } catch (error) {
-      console.error("Video seçiminde hata:", error);
-      Alert.alert("Hata", "Video seçilirken bir hata oluştu: " + error.message);
-    }
-  };
-
   const pickThumbnail = async () => {
     try {
       const permissionResult =
@@ -82,6 +38,45 @@ export default function Create() {
     } catch (error) {
       console.error("Fotoğraf seçiminde hata:", error);
       alert("Fotoğraf seçilirken bir hata oluştu.");
+    }
+  };
+
+  const pickVideo = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (permissionResult.granted === false) {
+        Alert.alert(
+          "İzin Gerekli",
+          "Video seçmek için galeri iznine ihtiyacımız var!",
+          [
+            { text: "İptal" },
+            { text: "Ayarlara Git", onPress: () => Linking.openSettings() },
+          ]
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 1,
+        videoMaxDuration: 300,
+        presentationStyle: "fullScreen",
+      });
+
+      if (!result.canceled) {
+        const videoAsset = result.assets[0];
+        console.log("Seçilen video:", videoAsset); // Hata ayıklama için
+        setVideoUri(videoAsset.uri);
+      } else {
+        console.log("Video seçimi iptal edildi");
+      }
+    } catch (error) {
+      console.error("Video seçiminde hata:", error);
+      Alert.alert("Hata", "Video seçilirken bir hata oluştu: " + error.message);
     }
   };
 
