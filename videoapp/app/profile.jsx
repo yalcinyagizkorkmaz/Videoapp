@@ -1,5 +1,5 @@
 import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,24 +8,48 @@ export default function Profile() {
   const router = useRouter();
   const { username } = useLocalSearchParams();
   const [storedUsername, setStoredUsername] = useState(username || "Misafir");
+  const [posts, setPosts] = useState([]);
 
-  const handleLogout = () => {
-    router.push("/");
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const savedUsername = await AsyncStorage.getItem("username");
+      if (savedUsername) {
+        setStoredUsername(savedUsername);
+      }
+      // Burada API'den kullanıcının gönderilerini yükleyebilirsiniz
+      // örnek: const userPosts = await fetchUserPosts(savedUsername);
+      // setPosts(userPosts);
+    } catch (error) {
+      console.error("Veri yükleme hatası:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("username");
+      await AsyncStorage.removeItem("token");
+      router.replace("/");
+    } catch (error) {
+      console.error("Çıkış yapma hatası:", error);
+    }
   };
 
   return (
     <View className="flex-1 bg-black p-4">
-      <TouchableOpacity
-        onPress={handleLogout}
-        className="absolute right-4 top-4 z-10"
-      >
-        <Image
-          source={require("../assets/images/tabler_logout.png")}
-          className="w-6 h-6"
-        />
-      </TouchableOpacity>
-
       <ScrollView className="mb-20">
+        <TouchableOpacity
+          onPress={handleLogout}
+          className="absolute right-4 top-0 z-10"
+        >
+          <Image
+            source={require("../assets/images/tabler_logout.png")}
+            className="w-6 h-6"
+          />
+        </TouchableOpacity>
         <View className="flex-row mt-0  bg-[#202029] p-4 rounded-lg w-5/6">
           <Image
             source={require("../assets/images/Rectangle-7.png")}
@@ -49,64 +73,31 @@ export default function Profile() {
             </View>
           </View>
         </View>
-        <View className="flex-row justify-center mt-4">
-          <View className="bg-[#202029] p-4 rounded-lg w-full">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center flex-1">
-                <Image
-                  source={require("../assets/images/avatar.png")}
-                  className="w-16 h-16 rounded-full"
-                />
-                <View className="ml-4 flex-1">
-                  <Text className="text-white">
-                    Woman walks down a Tokyo...
-                  </Text>
-                  <Text className="text-gray-400 mt-1">Brandon Etter</Text>
-                </View>
-              </View>
-              <TouchableOpacity>
-                <Image
-                  source={require("../assets/images/more.png")}
-                  className="w-6 h-6"
-                />
-              </TouchableOpacity>
-            </View>
+        <View className="flex-row justify-center mt-4"></View>
+        {posts.length > 0 ? (
+          posts.map((post, index) => (
+            <View key={index} className="flex-row justify-center mt-4"></View>
+          ))
+        ) : (
+          <View className="flex-1 justify-center items-center mt-8">
             <Image
-              source={require("../assets/images/video.png")}
-              className="w-full h-48 mt-4 rounded-lg"
-              resizeMode="cover"
+              source={require("../assets/images/EmptyState.png")}
+              className="w-[270] h-[216]"
             />
+            <Text className="text-white text-lg mt-4">No Videos Found</Text>
+            <Text className="text-white text-lg font-bold mt-2">
+              No videos found for this profile
+            </Text>
+            <TouchableOpacity
+              className="mt-4 bg-orange-500 px-6 py-3 rounded-2xl w-full"
+              onPress={() => router.push("/home")}
+            >
+              <Text className="text-black text-center font-semibold">
+                Back to Explore
+              </Text>
+            </TouchableOpacity>
           </View>
-        </View>
-        <View className="flex-row justify-center mt-4">
-          <View className="bg-[#202029] p-4 rounded-lg w-full">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center flex-1">
-                <Image
-                  source={require("../assets/images/avatar.png")}
-                  className="w-16 h-16 rounded-full"
-                />
-                <View className="ml-4 flex-1">
-                  <Text className="text-white">
-                    Woman walks down a Tokyo...
-                  </Text>
-                  <Text className="text-gray-400 mt-1">Brandon Etter</Text>
-                </View>
-              </View>
-              <TouchableOpacity>
-                <Image
-                  source={require("../assets/images/more.png")}
-                  className="w-6 h-6"
-                />
-              </TouchableOpacity>
-            </View>
-            <Image
-              source={require("../assets/images/video.png")}
-              className="w-full h-48 mt-4 rounded-lg"
-              resizeMode="cover"
-            />
-          </View>
-        </View>
+        )}
       </ScrollView>
 
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">

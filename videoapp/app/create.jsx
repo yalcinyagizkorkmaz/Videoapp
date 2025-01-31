@@ -43,40 +43,50 @@ export default function Create() {
 
   const pickVideo = async () => {
     try {
-      const permissionResult =
+      // Önce kamera roll izinlerini kontrol edelim
+      const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (permissionResult.granted === false) {
+      if (status !== "granted") {
         Alert.alert(
-          "İzin Gerekli",
-          "Video seçmek için galeri iznine ihtiyacımız var!",
+          "Galeri İzni Gerekli",
+          "Videoları görüntüleyebilmek için galeri iznine ihtiyacımız var. Lütfen ayarlardan izin verin.",
           [
             { text: "İptal" },
-            { text: "Ayarlara Git", onPress: () => Linking.openSettings() },
+            {
+              text: "Ayarlara Git",
+              onPress: () => Linking.openSettings(),
+            },
           ]
         );
         return;
       }
 
+      // Galeri açma işlemi
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         allowsEditing: true,
         aspect: [16, 9],
         quality: 1,
         videoMaxDuration: 300,
-        presentationStyle: "fullScreen",
       });
 
       if (!result.canceled) {
+        if (!result.assets || result.assets.length === 0) {
+          Alert.alert("Hata", "Video seçilemedi. Lütfen tekrar deneyin.");
+          return;
+        }
+
         const videoAsset = result.assets[0];
-        console.log("Seçilen video:", videoAsset); // Hata ayıklama için
         setVideoUri(videoAsset.uri);
-      } else {
-        console.log("Video seçimi iptal edildi");
+        console.log("Video başarıyla seçildi:", videoAsset.uri);
       }
     } catch (error) {
       console.error("Video seçiminde hata:", error);
-      Alert.alert("Hata", "Video seçilirken bir hata oluştu: " + error.message);
+      Alert.alert(
+        "Hata",
+        "Video seçilirken bir hata oluştu. Lütfen tekrar deneyin."
+      );
     }
   };
 
