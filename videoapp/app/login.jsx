@@ -20,7 +20,7 @@ export default function Login() {
     setEmail(text);
 
     if (text.length === 0) {
-      setEmailError("Email alanı zorunludur!");
+      setEmailError("Email is required!");
     } else if (!emailRegex.test(text)) {
       setEmailError("Geçerli bir email adresi giriniz!");
     } else {
@@ -85,13 +85,13 @@ export default function Login() {
           className="w-full bg-orange-500 p-4 rounded-lg"
           onPress={handleSignUp}
         >
-          <Text className="text-black text-center font-bold">Sign Up</Text>
+          <Text className="text-black text-center font-bold">Login</Text>
         </TouchableOpacity>
 
         <View className="flex-row justify-center">
           <Text className="text-white">Already have an account? </Text>
-          <Link href="/login" className="font-bold text-white">
-            <Text className="text-orange-500">Login</Text>
+          <Link href="/signup" className="font-bold text-white">
+            <Text className="text-orange-500">Sign Up</Text>
           </Link>
         </View>
       </View>
