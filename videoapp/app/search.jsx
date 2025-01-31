@@ -7,10 +7,11 @@ import {
   WebView,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Search() {
   const { query } = useLocalSearchParams();
@@ -35,6 +36,21 @@ export default function Search() {
   ]);
   const [savedPosts, setSavedPosts] = useState([]);
 
+  useEffect(() => {
+    loadSavedPosts();
+  }, []);
+
+  const loadSavedPosts = async () => {
+    try {
+      const savedPostsData = await AsyncStorage.getItem("savedPosts");
+      if (savedPostsData) {
+        setSavedPosts(JSON.parse(savedPostsData));
+      }
+    } catch (error) {
+      console.error("Error loading saved posts:", error);
+    }
+  };
+
   const toggleActionMenu = (index) => {
     setShowActionMenu(showActionMenu === index ? null : index);
   };
@@ -47,10 +63,20 @@ export default function Search() {
     setShowActionMenu(null);
   };
 
-  const handleSave = (post) => {
-    setSavedPosts((currentSavedPosts) => [...currentSavedPosts, post]);
-    setShowActionMenu(null);
-    alert("Post başarıyla kaydedildi!");
+  const handleSave = async (post) => {
+    try {
+      const updatedSavedPosts = [...savedPosts, post];
+      await AsyncStorage.setItem(
+        "savedPosts",
+        JSON.stringify(updatedSavedPosts)
+      );
+      setSavedPosts(updatedSavedPosts);
+      setShowActionMenu(null);
+      alert("Post başarıyla kaydedildi!");
+    } catch (error) {
+      console.error("Error saving post:", error);
+      alert("Post kaydedilirken bir hata oluştu!");
+    }
   };
 
   return (
