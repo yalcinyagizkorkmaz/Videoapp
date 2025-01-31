@@ -89,7 +89,7 @@ export default function Profile() {
               No videos found for this profile
             </Text>
             <TouchableOpacity
-              className="mt-4 bg-orange-500 px-6 py-3 rounded-2xl w-full"
+              className="bg-orange-500 w-full h-15 p-4 rounded-lg items-center mt-4"
               onPress={() => router.push("/home")}
             >
               <Text className="text-black text-center font-semibold">
