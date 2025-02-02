@@ -29,7 +29,7 @@ export default function Signup() {
     }
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     let hasError = false;
 
     if (!username.trim()) {
@@ -52,10 +52,42 @@ export default function Signup() {
     }
 
     if (!hasError) {
-      router.push({
-        pathname: "/home",
-        params: { username: username },
-      });
+      try {
+        const response = await fetch(
+          "http://192.168.1.100:8000/users/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username: username,
+              userEmail: email,
+              userpassword: password,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Başarılı kayıt
+          router.push({
+            pathname: "/home",
+            params: { username: username },
+          });
+        } else {
+          // Sunucudan gelen hata mesajını göster
+          if (data.detail.includes("kullanıcı adı")) {
+            setUsernameError(data.detail);
+          } else {
+            setPasswordError("Kayıt sırasında bir hata oluştu");
+          }
+        }
+      } catch (error) {
+        console.error("Kayıt hatası:", error);
+        setPasswordError("Sunucuya bağlanırken bir hata oluştu");
+      }
     }
   };
 
