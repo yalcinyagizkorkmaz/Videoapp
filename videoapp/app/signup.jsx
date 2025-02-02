@@ -35,20 +35,25 @@ export default function Signup() {
     if (!username.trim()) {
       setUsernameError("Username is required!");
       hasError = true;
-    } else {
-      setUsernameError("");
+    } else if (username.length < 3) {
+      setUsernameError("Username must be at least 3 characters long!");
+      hasError = true;
     }
 
     if (!email.trim()) {
-      setEmailError("Email address is required!");
+      setEmailError("Email is required!");
+      hasError = true;
+    } else if (!email.includes("@")) {
+      setEmailError("Please enter a valid email address!");
       hasError = true;
     }
 
     if (!password.trim()) {
       setPasswordError("Password is required!");
       hasError = true;
-    } else {
-      setPasswordError("");
+    } else if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters long!");
+      hasError = true;
     }
 
     if (!hasError) {
@@ -59,9 +64,9 @@ export default function Signup() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username: username,
-            userEmail: email,
-            userpassword: password,
+            username: username.trim(),
+            userEmail: email.trim(),
+            userpassword: password.trim(),
           }),
         });
 
@@ -73,13 +78,13 @@ export default function Signup() {
             params: { username: username },
           });
         } else {
-          if (data.detail && typeof data.detail === "string") {
-            if (data.detail.includes("username")) {
+          if (data.detail) {
+            if (data.detail.includes("kullanıcı adı")) {
               setUsernameError("Bu kullanıcı adı zaten kullanılıyor");
-            } else if (data.detail.includes("email")) {
-              setEmailError("Bu email adresi zaten kayıtlı");
+            } else if (data.detail.includes("e-posta")) {
+              setEmailError("Bu e-posta adresi zaten kullanılıyor");
             } else {
-              setPasswordError("Kayıt sırasında bir hata oluştu");
+              setPasswordError(data.detail);
             }
           } else {
             setPasswordError("Beklenmeyen bir hata oluştu");

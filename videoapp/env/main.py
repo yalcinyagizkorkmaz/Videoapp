@@ -85,8 +85,18 @@ class UserLogin(BaseModel):
     username: str
     userEmail: str
     userpassword: str
-    family_id: Optional[int] = None  # Make family_id optional with a default value of None
 
+    @validator('userEmail')
+    def email_validator(cls, v):
+        if '@' not in v:
+            raise ValueError("Geçerli bir email adresi giriniz")
+        return v
+
+    @validator('userpassword')
+    def password_validator(cls, v):
+        if len(v) < 6:
+            raise ValueError("Şifre en az 6 karakter olmalıdır")
+        return v
 
 def get_db():
     db = SessionLocal()
@@ -211,6 +221,7 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    # Kullanıcıyı kullanıcı adı ve şifre ile doğrula
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
