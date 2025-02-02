@@ -221,6 +221,15 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    # Önce kullanıcının veritabanında olup olmadığını kontrol et
+    user_exists = db.query(User).filter(User.username == form_data.username).first()
+    if not user_exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Kullanıcı bulunamadı. Lütfen önce kayıt olun.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     # Kullanıcıyı kullanıcı adı ve şifre ile doğrula
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:

@@ -14,6 +14,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [password, setPassword] = useState("");
 
   const validateEmail = (text) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,15 +38,46 @@ export default function Login() {
     }
   };
 
-  const handleSignUp = () => {
-    validateEmail(email);
-    validateUsername(username);
+  const handleLogin = async () => {
+    try {
+      // Form verilerini kontrol et
+      if (!username || !email) {
+        if (!username) setUsernameError("Kullanıcı adı gerekli!");
+        if (!email) setEmailError("Email gerekli!");
+        return;
+      }
 
-    if (!emailError && !usernameError && email && username) {
-      router.replace({
-        pathname: "/home",
-        params: { username: username },
+      // FormData oluştur
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("password", password);
+
+      const response = await fetch("http://127.0.0.1:8000/users/login", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
       });
+
+      if (response.status === 404) {
+        alert("Kullanıcı bulunamadı! Lütfen önce kayıt olun.");
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Giriş başarısız");
+      }
+
+      const data = await response.json();
+      // Token'ı localStorage'a kaydet
+      localStorage.setItem("access_token", data.access_token);
+
+      // Ana sayfaya yönlendir
+      router.push("/home");
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -83,7 +115,7 @@ export default function Login() {
 
         <TouchableOpacity
           className="w-full bg-orange-500 p-4 rounded-lg"
-          onPress={handleSignUp}
+          onPress={handleLogin}
         >
           <Text className="text-black text-center font-bold">Login</Text>
         </TouchableOpacity>
