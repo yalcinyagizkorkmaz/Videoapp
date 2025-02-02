@@ -23,7 +23,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Uygulama başlatılırken veritabanını yeniden oluştur
 try:
-    init_db(force_drop_create=True)  # Bu satırı sadece bir kez çalıştırın, sonra False yapın
+    # False yaparak tabloların silinmesini engelliyoruz
+    init_db(force_drop_create=False)  # Sadece tablolar yoksa oluşturur
 except Exception as e:
     logging.error(f"Veritabanı başlatma hatası: {str(e)}")
     raise

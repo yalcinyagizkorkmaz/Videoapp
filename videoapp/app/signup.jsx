@@ -53,35 +53,36 @@ export default function Signup() {
 
     if (!hasError) {
       try {
-        const response = await fetch(
-          "http://192.168.1.100:8000/users/register",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username: username,
-              userEmail: email,
-              userpassword: password,
-            }),
-          }
-        );
+        const response = await fetch("http://127.0.0.1:8000/users/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: username,
+            userEmail: email,
+            userpassword: password,
+          }),
+        });
 
         const data = await response.json();
 
         if (response.ok) {
-          // Başarılı kayıt
           router.push({
             pathname: "/home",
             params: { username: username },
           });
         } else {
-          // Sunucudan gelen hata mesajını göster
-          if (data.detail.includes("kullanıcı adı")) {
-            setUsernameError(data.detail);
+          if (data.detail && typeof data.detail === "string") {
+            if (data.detail.includes("username")) {
+              setUsernameError("Bu kullanıcı adı zaten kullanılıyor");
+            } else if (data.detail.includes("email")) {
+              setEmailError("Bu email adresi zaten kayıtlı");
+            } else {
+              setPasswordError("Kayıt sırasında bir hata oluştu");
+            }
           } else {
-            setPasswordError("Kayıt sırasında bir hata oluştu");
+            setPasswordError("Beklenmeyen bir hata oluştu");
           }
         }
       } catch (error) {
