@@ -8,6 +8,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -47,37 +48,36 @@ export default function Login() {
         return;
       }
 
-      // FormData oluştur
-      const formData = new FormData();
-      formData.append("username", username);
-      formData.append("password", password);
-
+      // Backend'e uygun şekilde JSON verisi gönder
       const response = await fetch("http://127.0.0.1:8000/users/login", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: formData,
+        body: JSON.stringify({
+          username: username,
+          userEmail: email, // backend'deki modele uygun olarak değiştirildi
+        }),
       });
 
-      if (response.status === 404) {
-        alert("Kullanıcı bulunamadı! Lütfen önce kayıt olun.");
+      if (response.status === 401) {
+        alert("Username or email is incorrect!");
         return;
       }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Giriş başarısız");
+        throw new Error("Giriş işlemi başarısız oldu");
       }
 
       const data = await response.json();
-      // Token'ı localStorage'a kaydet
-      localStorage.setItem("access_token", data.access_token);
+      await AsyncStorage.setItem("access_token", data.access_token);
 
       // Ana sayfaya yönlendir
       router.push("/home");
     } catch (error) {
-      alert(error.message);
+      console.error("Giriş hatası:", error);
+      alert("Giriş yapılırken bir hata oluştu: " + error.message);
     }
   };
 

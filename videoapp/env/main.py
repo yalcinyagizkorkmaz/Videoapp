@@ -84,18 +84,11 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     username: str
     userEmail: str
-    userpassword: str
 
     @validator('userEmail')
     def email_validator(cls, v):
         if '@' not in v:
             raise ValueError("Geçerli bir email adresi giriniz")
-        return v
-
-    @validator('userpassword')
-    def password_validator(cls, v):
-        if len(v) < 6:
-            raise ValueError("Şifre en az 6 karakter olmalıdır")
         return v
 
 def get_db():
@@ -216,55 +209,31 @@ def authenticate_user(db: Session, username: str, password: str):
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
+    
+
 @app.post("/users/login", response_model=Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    user_data: UserLogin,  # OAuth2PasswordRequestForm yerine kendi modelimizi kullanıyoruz
     db: Session = Depends(get_db)
 ):
-    # Önce kullanıcının veritabanında olup olmadığını kontrol et
-    user_exists = db.query(User).filter(User.username == form_data.username).first()
-    if not user_exists:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Kullanıcı bulunamadı. Lütfen önce kayıt olun.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # Kullanıcıyı kullanıcı adı ve şifre ile doğrula
-    user = authenticate_user(db, form_data.username, form_data.password)
+    # Kullanıcıyı sadece username ve email ile kontrol et
+    user = db.query(User).filter(
+        (User.username == user_data.username) & (User.user_email == user_data.userEmail)
+    ).first()
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Kullanıcı adı veya şifre hatalı",
+            detail="Kullanıcı adı veya email hatalı",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Geçersiz kimlik bilgileri",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = db.query(User).filter(User.username == token_data.username).first()
-    if user is None:
-        raise credentials_exception
-    return user
 
 
 
