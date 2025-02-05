@@ -34,10 +34,11 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Allow specific methods
-    allow_headers=["Authorization", "Content-Type"],  # Allow necessary headers
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -234,6 +235,11 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+# Sağlık kontrolü endpoint'i ekleyelim
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 
 

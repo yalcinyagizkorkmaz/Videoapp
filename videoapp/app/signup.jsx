@@ -1,4 +1,11 @@
-import { Text, View, TouchableOpacity, Image, TextInput } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Platform,
+} from "react-native";
 import React, { useState } from "react";
 import { Link, router } from "expo-router";
 import "nativewind";
@@ -8,6 +15,15 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
+
+// API URL'ini platform bazlı ayarla
+const API_URL = Platform.select({
+  ios: "http://192.168.1.6:8000", // Bilgisayarınızın IP adresi
+  android: "http://10.0.2.2:8000",
+  default: "http://192.168.1.6:8000", // Bilgisayarınızın IP adresi
+});
+
+console.log("Current API URL:", API_URL);
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -58,10 +74,11 @@ export default function Signup() {
 
     if (!hasError) {
       try {
-        const response = await fetch("http://127.0.0.1:8000/users/register", {
+        const response = await fetch(`${API_URL}/users/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
             username: username.trim(),
@@ -69,6 +86,9 @@ export default function Signup() {
             userpassword: password.trim(),
           }),
         });
+
+        // Hata ayıklama için log ekleyelim
+        console.log("Response status:", response.status);
 
         const data = await response.json();
 
@@ -91,8 +111,12 @@ export default function Signup() {
           }
         }
       } catch (error) {
-        console.error("Kayıt hatası:", error);
-        setPasswordError("Sunucuya bağlanırken bir hata oluştu");
+        console.error("Kayıt hatası detayı:", {
+          message: error.message,
+          platform: Platform.OS,
+          apiUrl: API_URL,
+        });
+        setPasswordError("Bağlantı hatası. Lütfen tekrar deneyin.");
       }
     }
   };

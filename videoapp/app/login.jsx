@@ -1,4 +1,11 @@
-import { Text, View, TouchableOpacity, Image, TextInput } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Platform,
+} from "react-native";
 import React, { useState } from "react";
 import { Link, router } from "expo-router";
 import "nativewind";
@@ -10,12 +17,22 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const API_URL = Platform.select({
+  ios: "http://192.168.1.6:8000", // Bilgisayarınızın IP adresi
+  android: "http://10.0.2.2:8000",
+  default: "http://192.168.1.6:8000", // Bilgisayarınızın IP adresi
+});
+
+// Debug için daha detaylı loglar ekleyelim
+console.log("Current API URL:", API_URL);
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const validateEmail = (text) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,24 +58,32 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      // Form verilerini kontrol et
-      if (!username || !email) {
-        if (!username) setUsernameError("Kullanıcı adı gerekli!");
-        if (!email) setEmailError("Email gerekli!");
-        return;
-      }
+      console.log("Platform:", Platform.OS);
+      console.log("API URL:", API_URL);
+      console.log("Request data:", {
+        username: username.trim(),
+        userEmail: email.trim(),
+      });
 
-      // Backend'e uygun şekilde JSON verisi gönder
-      const response = await fetch("http://127.0.0.1:8000/users/login", {
+      // Timeout ekleyelim
+      const response = await fetch(`${API_URL}/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
         body: JSON.stringify({
-          username: username,
-          userEmail: email, // backend'deki modele uygun olarak değiştirildi
+          username: username.trim(),
+          userEmail: email.trim(),
         }),
+        // Timeout ekleyelim
+        timeout: 5000,
+      });
+
+      console.log("Response:", {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
       });
 
       if (response.status === 401) {
@@ -79,8 +104,13 @@ export default function Login() {
         params: { username: username },
       });
     } catch (error) {
-      console.error("Giriş hatası:", error);
-      alert("Giriş yapılırken bir hata oluştu: " + error.message);
+      console.error("Detailed error:", {
+        message: error.message,
+        stack: error.stack,
+        platform: Platform.OS,
+        apiUrl: API_URL,
+      });
+      setError("Bağlantı hatası. Lütfen tekrar deneyin.");
     }
   };
 
