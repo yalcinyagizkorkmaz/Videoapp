@@ -18,7 +18,7 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [searchName, setSearchName] = useState("");
-  const [storedUsername, setStoredUsername] = useState(username || "Misafir");
+  const [storedUsername, setStoredUsername] = useState(username);
 
   const cards = [
     { id: 1, image: require("../assets/images/card-1.png") },

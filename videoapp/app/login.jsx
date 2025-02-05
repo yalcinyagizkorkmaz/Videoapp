@@ -24,7 +24,7 @@ export default function Login() {
     if (text.length === 0) {
       setEmailError("Email is required!");
     } else if (!emailRegex.test(text)) {
-      setEmailError("Geçerli bir email adresi giriniz!");
+      setEmailError("Enter a valid email address!");
     } else {
       setEmailError("");
     }
@@ -74,7 +74,10 @@ export default function Login() {
       await AsyncStorage.setItem("access_token", data.access_token);
 
       // Ana sayfaya yönlendir
-      router.push("/home");
+      router.push({
+        pathname: "/home",
+        params: { username: username },
+      });
     } catch (error) {
       console.error("Giriş hatası:", error);
       alert("Giriş yapılırken bir hata oluştu: " + error.message);
