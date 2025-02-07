@@ -13,6 +13,7 @@ from typing import List,Optional
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import os
+import uvicorn
 
 
 
@@ -240,6 +241,14 @@ async def login_for_access_token(
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app", 
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )
 
 
 

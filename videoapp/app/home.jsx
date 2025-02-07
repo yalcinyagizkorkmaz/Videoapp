@@ -21,8 +21,8 @@ export default function Home() {
   const [storedUsername, setStoredUsername] = useState(username);
 
   const cards = [
-    { id: 1, image: require("../assets/images/card-1.png") },
-    { id: 2, image: require("../assets/images/card-2.png") },
+    { id: 1, image: require("../assets/images/Card-1.png") },
+    { id: 2, image: require("../assets/images/Card-2.png") },
     { id: 3, image: require("../assets/images/card-3.jpeg") },
   ];
 
