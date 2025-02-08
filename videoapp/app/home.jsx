@@ -6,10 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const { username } = useLocalSearchParams();
@@ -18,7 +19,27 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [searchName, setSearchName] = useState("");
-  const [storedUsername, setStoredUsername] = useState(username);
+  const [storedUsername, setStoredUsername] = useState(username || "");
+
+  useEffect(() => {
+    const getUsername = async () => {
+      try {
+        if (username) {
+          setStoredUsername(username);
+          return;
+        }
+
+        const savedUsername = await AsyncStorage.getItem("username");
+        if (savedUsername) {
+          setStoredUsername(savedUsername);
+        }
+      } catch (error) {
+        console.error("Username yüklenirken hata:", error);
+      }
+    };
+
+    getUsername();
+  }, [username]);
 
   const cards = [
     { id: 1, image: require("../assets/images/Card-1.png") },
@@ -38,7 +59,7 @@ export default function Home() {
             <View>
               <Text className="text-white">Welcome Back</Text>
               <Text className="text-white text-3xl font-bold">
-                {storedUsername}
+                {storedUsername || "Misafir"}
               </Text>
             </View>
             <View className="flex-row">

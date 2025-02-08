@@ -62,10 +62,9 @@ export default function Login() {
       console.log("API URL:", API_URL);
       console.log("Request data:", {
         username: username.trim(),
-        userEmail: email.trim(),
+        userpassword: password.trim(),
       });
 
-      // Timeout ekleyelim
       const response = await fetch(`${API_URL}/users/login`, {
         method: "POST",
         headers: {
@@ -74,9 +73,8 @@ export default function Login() {
         },
         body: JSON.stringify({
           username: username.trim(),
-          userEmail: email.trim(),
+          userpassword: password.trim(),
         }),
-        // Timeout ekleyelim
         timeout: 5000,
       });
 
@@ -87,7 +85,7 @@ export default function Login() {
       });
 
       if (response.status === 401) {
-        alert("Username or email is incorrect!");
+        alert("Kullanıcı adı veya şifre hatalı!");
         return;
       }
 
@@ -97,6 +95,7 @@ export default function Login() {
 
       const data = await response.json();
       await AsyncStorage.setItem("access_token", data.access_token);
+      await AsyncStorage.setItem("username", username);
 
       // Ana sayfaya yönlendir
       router.push({
@@ -122,7 +121,7 @@ export default function Login() {
       />
 
       <View className="w-full space-y-4 mt-8">
-        <Text className="text-white text-4xl font-bold">Sign Up</Text>
+        <Text className="text-white text-4xl font-bold">Login</Text>
         <Text className="text-white">Username</Text>
         <TextInput
           className="w-full bg-white p-4 rounded-lg"
@@ -130,20 +129,15 @@ export default function Login() {
           value={username}
           onChangeText={validateUsername}
         />
-        {usernameError ? (
-          <Text className="text-red-500 text-sm">{usernameError}</Text>
-        ) : null}
-        <Text className="text-white">Email</Text>
+
+        <Text className="text-white">Şifre</Text>
         <TextInput
           className="w-full bg-white p-4 rounded-lg"
-          placeholder="Your  email"
-          value={email}
-          onChangeText={validateEmail}
-          keyboardType="email-address"
+          placeholder="Şifreniz"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
         />
-        {emailError ? (
-          <Text className="text-red-500 text-sm">{emailError}</Text>
-        ) : null}
         <Text className="text-white text-right">Forgot password</Text>
 
         <TouchableOpacity

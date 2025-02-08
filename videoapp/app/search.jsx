@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Search() {
   const { query } = useLocalSearchParams();
   const router = useRouter();
-  const [storedUsername, setStoredUsername] = useState("Misafir");
+  const [username, setUsername] = useState("");
   const [showActionMenu, setShowActionMenu] = useState(null);
   const [posts, setPosts] = useState([
     {
@@ -38,6 +38,18 @@ export default function Search() {
 
   useEffect(() => {
     loadSavedPosts();
+    const getUsername = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem("username");
+        if (storedUsername) {
+          setUsername(storedUsername);
+        }
+      } catch (error) {
+        console.error("Username yüklenirken hata:", error);
+      }
+    };
+
+    getUsername();
   }, []);
 
   const loadSavedPosts = async () => {
@@ -177,7 +189,7 @@ export default function Search() {
           onPress={() =>
             router.push({
               pathname: "/profile",
-              params: { username: storedUsername },
+              params: { username: username },
             })
           }
         >

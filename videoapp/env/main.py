@@ -85,12 +85,12 @@ class UserCreate(BaseModel):
 
 class UserLogin(BaseModel):
     username: str
-    userEmail: str
+    userpassword: str
 
-    @validator('userEmail')
-    def email_validator(cls, v):
-        if '@' not in v:
-            raise ValueError("Geçerli bir email adresi giriniz")
+    @validator('userpassword')
+    def password_validator(cls, v):
+        if len(v) < 6:
+            raise ValueError("Şifre en az 6 karakter olmalıdır")
         return v
 
 def get_db():
@@ -216,18 +216,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @app.post("/users/login", response_model=Token)
 async def login_for_access_token(
-    user_data: UserLogin,  # OAuth2PasswordRequestForm yerine kendi modelimizi kullanıyoruz
+    user_data: UserLogin,
     db: Session = Depends(get_db)
 ):
-    # Kullanıcıyı sadece username ve email ile kontrol et
-    user = db.query(User).filter(
-        (User.username == user_data.username) & (User.user_email == user_data.userEmail)
-    ).first()
+    # Kullanıcıyı username ve password ile kontrol et
+    user = db.query(User).filter(User.username == user_data.username).first()
     
-    if not user:
+    if not user or not verify_password(user_data.userpassword, user.userpassword):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Kullanıcı adı veya email hatalı",
+            detail="Kullanıcı adı veya şifre hatalı",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

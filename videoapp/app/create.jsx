@@ -1,19 +1,43 @@
 import { Text, View, TouchableOpacity, TextInput } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Alert, Linking } from "react-native";
 import * as FileSystem from "expo-file-system";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Create() {
   const router = useRouter();
   const { username } = useLocalSearchParams();
+  const [storedUsername, setStoredUsername] = useState(username || "");
   const [videoUri, setVideoUri] = useState(null);
   const [title, setTitle] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [thumbnailUri, setThumbnailUri] = useState(null);
   const [aiPrompt, setAiPrompt] = useState("");
+
+  useEffect(() => {
+    const getUsername = async () => {
+      try {
+        // Önce route params'dan gelen username'i kontrol et
+        if (username) {
+          setStoredUsername(username);
+          return;
+        }
+
+        // Yoksa AsyncStorage'dan al
+        const savedUsername = await AsyncStorage.getItem("username");
+        if (savedUsername) {
+          setStoredUsername(savedUsername);
+        }
+      } catch (error) {
+        console.error("Username yüklenirken hata:", error);
+      }
+    };
+
+    getUsername();
+  }, [username]);
 
   const pickThumbnail = async () => {
     try {
@@ -208,7 +232,12 @@ export default function Create() {
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/home")}
+          onPress={() =>
+            router.push({
+              pathname: "/home",
+              params: { username: storedUsername },
+            })
+          }
         >
           <Ionicons name="home" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Home</Text>
@@ -216,7 +245,12 @@ export default function Create() {
 
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/saved")}
+          onPress={() =>
+            router.push({
+              pathname: "/saved",
+              params: { username: storedUsername },
+            })
+          }
         >
           <Ionicons name="save" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Saved</Text>
@@ -235,7 +269,7 @@ export default function Create() {
           onPress={() =>
             router.push({
               pathname: "/profile",
-              params: { username: username },
+              params: { username: storedUsername },
             })
           }
         >

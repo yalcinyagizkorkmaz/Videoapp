@@ -30,11 +30,10 @@ export default function Profile() {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem("username");
-      await AsyncStorage.removeItem("token");
-      router.replace("/");
+      await AsyncStorage.multiRemove(["access_token", "username"]);
+      router.replace("/login");
     } catch (error) {
-      console.error("Çıkış yapma hatası:", error);
+      console.error("Çıkış yaparken hata:", error);
     }
   };
 
@@ -103,7 +102,12 @@ export default function Profile() {
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/home")}
+          onPress={() =>
+            router.push({
+              pathname: "/home",
+              params: { username: storedUsername },
+            })
+          }
         >
           <Ionicons name="home" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Home</Text>

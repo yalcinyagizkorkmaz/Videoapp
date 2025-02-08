@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { AsyncStorage } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useRouter, useLocalSearchParams } from "expo-router";
 
@@ -20,20 +20,31 @@ export default function saved() {
   const { query } = useLocalSearchParams();
 
   useEffect(() => {
-    // Örnek olarak AsyncStorage kullanımı
-    const loadSavedVideos = async () => {
+    const getUsername = async () => {
       try {
-        const savedVideosData = await AsyncStorage.getItem("savedVideos");
-        if (savedVideosData) {
-          setSavedVideos(JSON.parse(savedVideosData));
+        const storedUsername = await AsyncStorage.getItem("username");
+        if (storedUsername) {
+          setStoredUsername(storedUsername);
         }
       } catch (error) {
-        console.error("Videolar yüklenirken hata oluştu:", error);
+        console.error("Username yüklenirken hata:", error);
       }
     };
 
+    getUsername();
     loadSavedVideos();
   }, []);
+
+  const loadSavedVideos = async () => {
+    try {
+      const savedVideosData = await AsyncStorage.getItem("savedVideos");
+      if (savedVideosData) {
+        setSavedVideos(JSON.parse(savedVideosData));
+      }
+    } catch (error) {
+      console.error("Videolar yüklenirken hata oluştu:", error);
+    }
+  };
 
   return (
     <View className="flex-1 bg-black">
@@ -140,7 +151,12 @@ export default function saved() {
       <View className="absolute bottom-0 left-0 right-0 bg-[#202029] h-16 flex-row justify-around items-center border-t border-[#333]">
         <TouchableOpacity
           className="items-center"
-          onPress={() => router.push("/home")}
+          onPress={() =>
+            router.push({
+              pathname: "/home",
+              params: { username: storedUsername },
+            })
+          }
         >
           <Ionicons name="home" size={24} color="white" />
           <Text className="text-white text-xs mt-1">Home</Text>
