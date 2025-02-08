@@ -244,8 +244,8 @@ async def health_check():
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app", 
-        host="0.0.0.0",
+        "main:app",
+        host="0.0.0.0",  # Tüm IP'lerden erişime izin ver
         port=8000,
         reload=True
     )

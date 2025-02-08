@@ -18,9 +18,9 @@ import { Ionicons } from "@expo/vector-icons";
 
 // API URL'ini platform bazlı ayarla
 const API_URL = Platform.select({
-  ios: "http://127.0.0.1:8000", // Bilgisayarınızın IP adresi
-  android: "http://127.0.0.1:8000",
-  default: "http://127.0.0.1:8000", // Bilgisayarınızın IP adresi
+  ios: "http://192.168.1.6:8000", // Bilgisayarınızın IP adresi
+  android: "http://192.168.1.6:8000",
+  default: "http://192.168.1.6:8000",
 });
 
 console.log("Current API URL:", API_URL);
