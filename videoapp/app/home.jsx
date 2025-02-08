@@ -20,6 +20,17 @@ export default function Home() {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [searchName, setSearchName] = useState("");
   const [storedUsername, setStoredUsername] = useState(username || "");
+  const [showActionMenu, setShowActionMenu] = useState(null);
+  const [posts, setPosts] = useState([
+    {
+      id: 1,
+      title: "Woman walks down a Tokyo...",
+      author: "Brandon Etter",
+      image: require("../assets/images/video.png"),
+      avatar: require("../assets/images/avatar.png"),
+    },
+    // İkinci post için varsayılan veri ekleyebilirsiniz
+  ]);
 
   useEffect(() => {
     const getUsername = async () => {
@@ -46,6 +57,34 @@ export default function Home() {
     { id: 2, image: require("../assets/images/Card-2.png") },
     { id: 3, image: require("../assets/images/card-3.jpeg") },
   ];
+
+  const toggleActionMenu = (index) => {
+    setShowActionMenu(showActionMenu === index ? null : index);
+  };
+
+  const handleDelete = (postId) => {
+    setPosts(posts.filter((post) => post.id !== postId));
+    setShowActionMenu(null);
+    alert("Post başarıyla silindi!");
+  };
+
+  const handleSave = async (post) => {
+    try {
+      const savedPosts = await AsyncStorage.getItem("savedPosts");
+      const currentSavedPosts = savedPosts ? JSON.parse(savedPosts) : [];
+      const updatedSavedPosts = [...currentSavedPosts, post];
+
+      await AsyncStorage.setItem(
+        "savedPosts",
+        JSON.stringify(updatedSavedPosts)
+      );
+      setShowActionMenu(null);
+      alert("Post başarıyla kaydedildi!");
+    } catch (error) {
+      console.error("Error saving post:", error);
+      alert("Post kaydedilirken bir hata oluştu!");
+    }
+  };
 
   return (
     <View className="flex-1 bg-black">
@@ -150,64 +189,59 @@ export default function Home() {
               </View>
             </View>
           </ScrollView>
-          <View className="flex-row justify-center mt-4">
-            <View className="bg-[#202029] p-4 rounded-lg w-full">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center flex-1">
-                  <Image
-                    source={require("../assets/images/avatar.png")}
-                    className="w-16 h-16 rounded-full"
-                  />
-                  <View className="ml-4 flex-1">
-                    <Text className="text-white">
-                      Woman walks down a Tokyo...
-                    </Text>
-                    <Text className="text-gray-400 mt-1">Brandon Etter</Text>
+          {posts.map((post, index) => (
+            <View key={post.id} className="flex-row justify-center mt-4">
+              <View className="bg-[#202029] p-4 rounded-lg w-full">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center flex-1">
+                    <Image
+                      source={post.avatar}
+                      className="w-16 h-16 rounded-full"
+                    />
+                    <View className="ml-4 flex-1">
+                      <Text className="text-white">{post.title}</Text>
+                      <Text className="text-gray-400 mt-1">{post.author}</Text>
+                    </View>
                   </View>
+                  <TouchableOpacity onPress={() => toggleActionMenu(post.id)}>
+                    <Image
+                      source={require("../assets/images/more.png")}
+                      className="w-6 h-6"
+                    />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity>
-                  <Image
-                    source={require("../assets/images/more.png")}
-                    className="w-6 h-6"
-                  />
-                </TouchableOpacity>
-              </View>
-              <Image
-                source={require("../assets/images/video.png")}
-                className="w-full h-48 mt-4 rounded-lg"
-                resizeMode="cover"
-              />
-            </View>
-          </View>
-          <View className="flex-row justify-center mt-4">
-            <View className="bg-[#202029] p-4 rounded-lg w-full">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center flex-1">
-                  <Image
-                    source={require("../assets/images/Rectangle-7.png")}
-                    className="w-16 h-16 rounded-full"
-                  />
-                  <View className="ml-4 flex-1">
-                    <Text className="text-white">
-                      Woman walks down a Tokyo...
-                    </Text>
-                    <Text className="text-gray-400 mt-1">Brandon Etter</Text>
+
+                {showActionMenu === post.id && (
+                  <View className="absolute right-4 top-12 bg-[#333] rounded-lg p-2 z-10">
+                    <TouchableOpacity
+                      className="flex-row items-center p-2"
+                      onPress={() => handleSave(post)}
+                    >
+                      <Ionicons
+                        name="bookmark-outline"
+                        size={20}
+                        color="white"
+                      />
+                      <Text className="text-white ml-2">Kaydet</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="flex-row items-center p-2"
+                      onPress={() => handleDelete(post.id)}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="white" />
+                      <Text className="text-white ml-2">Sil</Text>
+                    </TouchableOpacity>
                   </View>
-                </View>
-                <TouchableOpacity>
-                  <Image
-                    source={require("../assets/images/more.png")}
-                    className="w-6 h-6"
-                  />
-                </TouchableOpacity>
+                )}
+
+                <Image
+                  source={post.image}
+                  className="w-full h-48 mt-4 rounded-lg"
+                  resizeMode="cover"
+                />
               </View>
-              <Image
-                source={require("../assets/images/img-2.png")}
-                className="w-full h-48 mt-4 rounded-lg"
-                resizeMode="cover"
-              />
             </View>
-          </View>
+          ))}
         </View>
       </ScrollView>
 
