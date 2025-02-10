@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Generator
+from fastapi import Depends
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ def init_db(force_drop_create: bool = False):
             if not inspector.has_table('users'):
                 Base.metadata.create_all(bind=engine)
                 logger.info("Veritabanı tabloları oluşturuldu")
+           
             else:
                 logger.info("Veritabanı tabloları zaten mevcut")
                 
@@ -42,3 +44,6 @@ def get_db() -> Generator:
     finally:
         logger.info("Veritabanı oturumu kapatıldı")
         db.close()
+
+def get_current_user(request):
+    return request.user

@@ -1,5 +1,5 @@
 import logging
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel,validator
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, SessionLocal, init_db
-from models import User  # models.py'den import ediyoruz
+from models import User, Video  # models.py'den import ediyoruz
 from typing import List,Optional
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -107,6 +107,28 @@ def get_db():
 
 
 # Register User Endpoint
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Geçersiz kimlik bilgileri",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    
+    user = db.query(User).filter(User.username == token_data.username).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
 @app.get("/")
 def read_root():
@@ -209,8 +231,6 @@ def authenticate_user(db: Session, username: str, password: str):
         return False
     return user
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 
     
 
@@ -239,6 +259,164 @@ async def login_for_access_token(
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+# Video şeması için Pydantic modeller
+class VideoBase(BaseModel):
+    video_title: str
+    video_prompt: str
+
+class VideoCreate(VideoBase):
+    pass
+
+class VideoResponse(VideoBase):
+    video_id: int
+    video_thumbnail: str
+    video_video: str
+    user_id: int
+
+    class Config:
+        from_attributes = True
+
+# Tüm videoları getir
+@app.get("/videos/", response_model=List[VideoResponse])
+async def get_videos(
+    skip: int = 0, 
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    try:
+        videos = db.query(Video).offset(skip).limit(limit).all()
+        return videos
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Videolar getirilirken hata oluştu: {str(e)}"
+        )
+
+# Belirli bir videoyu getir
+@app.get("/videos/{video_id}", response_model=VideoResponse)
+async def get_video(video_id: int, db: Session = Depends(get_db)):
+    try:
+        video = db.query(Video).filter(Video.video_id == video_id).first()
+        if not video:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Video bulunamadı"
+            )
+        return video
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Video getirilirken hata oluştu: {str(e)}"
+        )
+
+# Yeni video yükle
+@app.post("/videos/", response_model=VideoResponse)
+async def create_video(
+    video_title: str = Form(...),
+    video_prompt: str = Form(...),
+    video_file: UploadFile = File(...),
+    thumbnail_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        # Dosya yolları oluştur
+        video_path = f"uploads/videos/{video_file.filename}"
+        thumbnail_path = f"uploads/thumbnails/{thumbnail_file.filename}"
+
+        # Uploads klasörünü oluştur
+        os.makedirs("uploads/videos", exist_ok=True)
+        os.makedirs("uploads/thumbnails", exist_ok=True)
+
+        # Dosyaları kaydet
+        with open(video_path, "wb") as buffer:
+            content = await video_file.read()
+            buffer.write(content)
+
+        with open(thumbnail_path, "wb") as buffer:
+            content = await thumbnail_file.read()
+            buffer.write(content)
+
+        # Video nesnesini oluştur
+        db_video = Video(
+            video_title=video_title,
+            video_prompt=video_prompt,
+            video_video=video_path,
+            video_thumbnail=thumbnail_path,
+            user_id=current_user.user_id
+        )
+
+        # Veritabanına kaydet
+        db.add(db_video)
+        db.commit()
+        db.refresh(db_video)
+
+        return db_video
+
+    except Exception as e:
+        # Hata durumunda yüklenen dosyaları temizle
+        if 'video_path' in locals():
+            os.remove(video_path)
+        if 'thumbnail_path' in locals():
+            os.remove(thumbnail_path)
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Video yüklenirken hata oluştu: {str(e)}"
+        )
+
+# Video sil
+@app.delete("/videos/{video_id}")
+async def delete_video(
+    video_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        # Videoyu bul
+        video = db.query(Video).filter(Video.video_id == video_id).first()
+        
+        if not video:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Video bulunamadı"
+            )
+
+        # Kullanıcının video sahibi olduğunu kontrol et
+        if video.user_id != current_user.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Bu videoyu silme yetkiniz yok"
+            )
+
+        # Dosyaları sil
+        try:
+            if os.path.exists(video.video_video):
+                os.remove(video.video_video)
+            if os.path.exists(video.video_thumbnail):
+                os.remove(video.video_thumbnail)
+        except Exception as e:
+            print(f"Dosya silme hatası: {str(e)}")
+
+        # Veritabanından sil
+        db.delete(video)
+        db.commit()
+
+        return {"message": "Video başarıyla silindi"}
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Video silinirken hata oluştu: {str(e)}"
+        )
+
+# Kullanıcının videolarını getir
+
+    
 
 if __name__ == "__main__":
     uvicorn.run(
